@@ -1,0 +1,47 @@
+name: "Test action"
+description: "desc"
+inputs:
+  server:
+    description: "desc"
+    required: true
+  folder:
+    description: "desc"
+    required: true
+  job-name:
+    description: "desc"
+    required: true
+  params:
+    description: "desc"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Echo
+      run: echo "${{ github.action_path }}"
+      shell: bash
+    - name: Join certificates
+      id: join-certs
+      run: |
+        echo "fst" > a.txt
+        echo "snd" >> a.txt
+        echo "trd" >> a.txt
+      shell: bash
+    - name: Run python script
+      id: python
+      run: python "${{ github.action_path }}/python_file.py" a.txt $SERVER $FOLDER $JOB $PARAMS
+      continue-on-error: true
+      shell: bash
+      env:
+        SERVER: ${{ inputs.server }}
+        FOLDER: ${{ inputs.folder }}
+        JOB: ${{ inputs.job-name }}
+        PARAMS: ${{ inputs.params }}
+    - name: Print result
+      run: echo "Job finished" >> $GITHUB_STEP_SUMMARY
+      shell: bash
